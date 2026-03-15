@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EMJEE—KO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,300;0,400;1,300&family=Azeret+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black:  #050507;
+      --white:  #f4f2ee;
+      --cyan:   #00e5ff;
+      --blue:   #0066ff;
+      --dim:    #3a3a4a;
+      --mid:    #6b6b80;
+      --arch:   'Archivo Black', sans-serif;
+      --body:   'Archivo', sans-serif;
+      --mono:   'Azeret Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cur {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .18s, height .18s, opacity .18s;
+      mix-blend-mode: difference;
+    }
+    #cur.xl { width: 48px; height: 48px; opacity: .6; }
+
+    /* ── GRID LINES BG ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── FIXED SIDE LABELS ── */
+    .side-left {
+      position: fixed;
+      left: 1.8rem; top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      transform-origin: center center;
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--dim);
+      text-transform: uppercase;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .side-right {
+      position: fixed;
+      right: 1.8rem; top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      transform-origin: center center;
+      font-family: var(--mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--dim);
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.6rem 4rem;
+      mix-blend-mode: difference;
+    }
+    .nav-logo {
+      font-family: var(--arch);
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-logo .logo-dash { color: var(--cyan); }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      color: var(--mid);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+
+    /* ── SECTIONS (scroll pages) ── */
+    section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 6rem 6rem;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 6rem;
+    }
+
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeup .8s .2s forwards;
+    }
+    .hero-tag::before { content: ''; display: block; width: 32px; height: 1px; background: var(--cyan); }
+
+    .hero-title {
+      font-family: var(--arch);
+      font-size: clamp(5rem, 14vw, 13rem);
+      line-height: 0.88;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeup 1s .35s forwards;
+      position: relative;
+    }
+    .ht-emjee { color: var(--white); display: block; }
+    .ht-dash  {
+      color: var(--cyan);
+      display: block;
+      font-size: clamp(2rem, 4vw, 4rem);
+      letter-spacing: 0.4em;
+      margin: 0.2em 0;
+      font-family: var(--mono);
+      font-weight: 300;
+    }
+    .ht-ko {
+      color: transparent;
+      -webkit-text-stroke: 2px var(--white);
+      display: block;
+    }
+
+    /* diagonal accent line */
+    .hero-diag {
+      position: absolute;
+      right: -2rem;
+      top: 50%;
+      width: 1px;
+      height: 120%;
+      background: linear-gradient(to bottom, transparent, var(--cyan) 40%, var(--cyan) 60%, transparent);
+      transform: rotate(12deg) translateY(-50%);
+      opacity: 0.2;
+    }
+
+    .hero-sub {
+      margin-top: 3rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 4rem;
+      opacity: 0;
+      animation: fadeup .9s .6s forwards;
+    }
+    .hero-desc {
+      font-family: var(--body);
+      font-style: italic;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--mid);
+      line-height: 1.7;
+      max-width: 340px;
+    }
+    .hero-desc strong { color: var(--white); font-style: normal; font-weight: 400; }
+    .scroll-hint {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--dim), transparent);
+    }
+
+    /* ── SECTION TITLE STYLE ── */
+    .sec-label {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .sec-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--cyan); }
+
+    .sec-h {
+      font-family: var(--arch);
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.9;
+      letter-spacing: -0.01em;
+      margin-bottom: 2.5rem;
+    }
+    .sec-h .acc { color: transparent; -webkit-text-stroke: 1px var(--cyan); }
+
+    .sec-body-text {
+      font-family: var(--body);
+      font-size: 1.05rem;
+      line-height: 1.9;
+      color: rgba(244,242,238,0.6);
+      max-width: 520px;
+    }
+    .sec-body-text p { margin-bottom: 1.2rem; }
+    .sec-body-text strong { color: var(--white); font-weight: 400; }
+    .sec-body-text em { color: var(--cyan); font-style: normal; }
+
+    /* ── ABOUT ── */
+    #about { gap: 8rem; }
+    .about-left { flex: 1; }
+    .about-right {
+      flex: 0 0 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .stat-item {
+      border-left: 1px solid var(--dim);
+      padding-left: 1.2rem;
+    }
+    .stat-num {
+      font-family: var(--arch);
+      font-size: 2.5rem;
+      color: var(--cyan);
+      line-height: 1;
+      display: block;
+    }
+    .stat-lbl {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: var(--mid);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+      display: block;
+    }
+
+    /* ── MUSIC ── */
+    #music { flex-direction: column; align-items: flex-start; }
+    .music-inner { width: 100%; max-width: 860px; margin-top: 1rem; }
+
+    .track-item {
+      border-top: 1px solid var(--dim);
+      padding: 1.4rem 0;
+      display: grid;
+      grid-template-columns: 2rem 64px 1fr auto;
+      align-items: center;
+      gap: 1.2rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .track-item:last-child { border-bottom: 1px solid var(--dim); }
+    .track-item:hover { background: rgba(0,229,255,0.03); }
+    .t-idx {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--dim);
+    }
+    .t-cover {
+      width: 64px; height: 64px;
+      object-fit: cover;
+      filter: grayscale(0.5);
+      transition: filter .2s;
+    }
+    .track-item:hover .t-cover { filter: grayscale(0); }
+    .t-info { }
+    .t-title {
+      font-family: var(--arch);
+      font-size: 1.2rem;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      display: block;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .t-sub {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: var(--mid);
+    }
+    .t-play {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      border: 1px solid rgba(0,229,255,0.3);
+      padding: 0.35rem 0.85rem;
+      text-transform: uppercase;
+      transition: all .15s;
+      background: transparent;
+      cursor: pointer;
+    }
+    .t-play:hover { background: rgba(0,229,255,0.1); border-color: var(--cyan); }
+
+    /* embed drawer */
+    .embed-drawer {
+      display: none;
+      padding: 1rem 0 1rem 5rem;
+      border-bottom: 1px solid var(--dim);
+      background: rgba(0,229,255,0.02);
+    }
+    .embed-drawer.open { display: block; }
+    .e-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+    .e-pill {
+      font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em;
+      padding: 0.28rem 0.75rem;
+      border: 1px solid var(--dim);
+      color: var(--mid);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: all .15s;
+    }
+    .e-pill:hover { border-color: var(--cyan); color: var(--cyan); }
+    .e-tabs { display: flex; margin-bottom: 0.7rem; }
+    .e-tab {
+      font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em;
+      padding: 0.28rem 0.8rem; border: 1px solid var(--dim);
+      background: transparent; color: var(--mid);
+      cursor: pointer; margin-right: -1px; text-transform: uppercase;
+      transition: all .15s;
+    }
+    .e-tab:hover { color: var(--white); border-color: rgba(0,229,255,0.3); }
+    .e-tab.on { background: rgba(0,229,255,0.08); color: var(--cyan); border-color: rgba(0,229,255,0.5); z-index:1; position:relative; }
+    .e-frame { display: none; }
+    .e-frame.on { display: block; }
+
+    /* ── VIDEOS ── */
+    #videos { flex-direction: column; align-items: flex-start; }
+    .vid-wrap {
+      position: relative; width: 100%; max-width: 780px;
+      padding-top: 43.88%; /* 16:9 of 780px */
+      border: 1px solid var(--dim);
+      margin-top: 1rem;
+    }
+    .vid-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    .vid-meta {
+      margin-top: 0.8rem;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: var(--mid);
+      text-transform: uppercase;
+    }
+
+    /* ── BEHIND ── */
+    #behind { flex-direction: column; align-items: flex-start; }
+
+    /* ── BLOG ── */
+    #blog { flex-direction: column; align-items: flex-start; }
+
+    /* ── CONTACT ── */
+    #contact { flex-direction: column; align-items: flex-start; }
+    .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; max-width: 860px; width: 100%; margin-top: 1rem; }
+    .c-aside p {
+      font-family: var(--body);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--mid);
+      line-height: 1.9;
+      margin-bottom: 1rem;
+    }
+    .insta-icon-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px;
+      border: 1px solid var(--dim);
+      color: var(--mid);
+      text-decoration: none;
+      margin-top: 1.5rem;
+      transition: all .2s;
+    }
+    .insta-icon-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0,229,255,0.06);
+      box-shadow: 0 0 20px rgba(0,229,255,0.15);
+    }
+    .c-field { margin-bottom: 1rem; }
+    .c-field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.56rem;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+    .c-field input, .c-field textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--dim);
+      color: var(--white);
+      font-family: var(--body);
+      font-size: 0.95rem;
+      padding: 0.5rem 0;
+      outline: none;
+      resize: none;
+      transition: border-color .2s;
+    }
+    .c-field input:focus, .c-field textarea:focus { border-color: var(--cyan); }
+    .c-field input::placeholder, .c-field textarea::placeholder { color: var(--dim); font-style: italic; }
+    .c-send {
+      margin-top: 1.5rem;
+      font-family: var(--arch);
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 0.75rem 2.5rem;
+      cursor: pointer;
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .c-send:hover { background: var(--cyan); color: var(--black); }
+    .c-status { margin-top: 0.8rem; font-family: var(--mono); font-size: 0.62rem; color: var(--cyan); display: none; letter-spacing: 0.1em; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--dim);
+      padding: 1.5rem 6rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    footer p {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: var(--dim);
+    }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: .1s; }
+    .reveal-d2 { transition-delay: .2s; }
+    .reveal-d3 { transition-delay: .3s; }
+    .reveal-d4 { transition-delay: .4s; }
+
+    @keyframes fadeup { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── HOVER GLOW on section ── */
+    section::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 6rem;
+      width: 120px; height: 1px;
+      background: linear-gradient(to right, var(--cyan), transparent);
+      opacity: 0.4;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1.4rem 2rem; }
+      section { padding: 7rem 2rem 4rem; }
+      #hero { padding: 0 2rem; }
+      footer { padding: 1.5rem 2rem; }
+      .side-left, .side-right { display: none; }
+      #about { flex-direction: column; gap: 3rem; }
+      .about-right { flex-direction: row; flex-wrap: wrap; }
+      .contact-wrap { grid-template-columns: 1fr; gap: 2.5rem; }
+      .track-item { grid-template-columns: 2rem 1fr auto; }
+      .t-cover { display: none; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div class="side-left">EMJEE—KO · 2025</div>
+<div class="side-right">MUSICIAN · ANIMATOR · CREATOR</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero">EMJEE<span class="logo-dash">—</span>KO</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#music">Music</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#behind">Behind</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div>
+    <div class="hero-tag">musician · animator · creator</div>
+    <h1 class="hero-title">
+      <span class="ht-emjee">EMJEE</span>
+      <span class="ht-dash">— — —</span>
+      <span class="ht-ko">KO</span>
+      <div class="hero-diag"></div>
+    </h1>
+    <div class="hero-sub">
+      <p class="hero-desc">
+        Making <strong>music</strong> that hits.<br/>
+        Building <strong>worlds</strong> frame by frame.<br/>
+        Not stopping.
+      </p>
+      <div class="scroll-hint">scroll</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-left">
+    <div class="sec-label reveal">About</div>
+    <h2 class="sec-h reveal reveal-d1">WHO<br/><span class="acc">I AM.</span></h2>
+    <div class="sec-body-text reveal reveal-d2">
+      <p>EmjeeKO is an artist who lives at the crossroads of <strong>music</strong>, <strong>animation</strong>, and raw storytelling. From writing lyrics that hit hard to building worlds frame by frame — every medium is a canvas.</p>
+      <p>Music is the heartbeat. Animation is the soul. Driven by a deep passion for making the impossible move, EmjeeKO brings that same kinetic energy into every song, every visual, every collaboration.</p>
+      <p><em>Not just making content. Building a universe.</em></p>
+    </div>
+  </div>
+  <div class="about-right reveal reveal-d3">
+    <div class="stat-item">
+      <span class="stat-num">∞</span>
+      <span class="stat-lbl">Songs in progress</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">01</span>
+      <span class="stat-lbl">Releases out now</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">3+</span>
+      <span class="stat-lbl">Platforms streaming</span>
+    </div>
+  </div>
+</section>
+
+<!-- MUSIC -->
+<section id="music">
+  <div style="width:100%;">
+    <div class="sec-label reveal">Discography</div>
+    <h2 class="sec-h reveal reveal-d1">THE<br/><span class="acc">MUSIC.</span></h2>
+    <div class="music-inner reveal reveal-d2">
+
+      <div class="track-item" onclick="toggleDraw('adi')">
+        <span class="t-idx">01</span>
+        <img class="t-cover" src="adi-poduren.webp" alt="Adi Poduren"/>
+        <div class="t-info">
+          <span class="t-title">Adi Poduren</span>
+          <span class="t-sub">Single · HIP-HOP/RAP · Kronixx × Emjee.KO · 2025</span>
+        </div>
+        <button class="t-play" id="adi-btn">▶ Play</button>
+      </div>
+
+      <div class="embed-drawer" id="adi-draw">
+        <div class="e-pills">
+          <a class="e-pill" href="https://music.amazon.in/albums/B0FQJGC3H4?marketplaceId=A21TJRUUN4KGV&musicTerritory=IN" target="_blank">Amazon ↗</a>
+          <a class="e-pill" href="https://music.apple.com/us/album/adi-poduren-single/1838911337" target="_blank">Apple Music ↗</a>
+          <a class="e-pill" href="https://open.spotify.com/track/2oO0ZXokAXyxmf1YCVQZTs" target="_blank">Spotify ↗</a>
+        </div>
+        <div class="e-tabs">
+          <button class="e-tab on" onclick="eTab(event,'adi-amazon')">Amazon</button>
+          <button class="e-tab" onclick="eTab(event,'adi-apple')">Apple</button>
+          <button class="e-tab" onclick="eTab(event,'adi-spotify')">Spotify</button>
+        </div>
+        <div class="e-frame on" id="adi-amazon">
+          <iframe src="https://music.amazon.in/embed/B0FQJGC3H4/?id=WSf4Tn4VIJ&marketplaceId=A3K6Y4MI8GDYMT&musicTerritory=IN" width="100%" height="175" frameBorder="0" style="border-radius:2px;max-width:660px;"></iframe>
+        </div>
+        <div class="e-frame" id="adi-apple">
+          <iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="175" style="width:100%;max-width:660px;overflow:hidden;border-radius:2px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/album/adi-poduren-single/1838911337"></iframe>
+        </div>
+        <div class="e-frame" id="adi-spotify">
+          <iframe style="border-radius:2px" src="https://open.spotify.com/embed/track/2oO0ZXokAXyxmf1YCVQZTs?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos">
+  <div style="width:100%;">
+    <div class="sec-label reveal">Visuals</div>
+    <h2 class="sec-h reveal reveal-d1">THE<br/><span class="acc">VIDEOS.</span></h2>
+    <div class="vid-wrap reveal reveal-d2">
+      <iframe src="https://www.youtube.com/embed/Lw5JV8tpBaE" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <p class="vid-meta reveal reveal-d3">Adi Poduren — Official Video &nbsp;·&nbsp; Kronixx × Emjee.KO &nbsp;·&nbsp; 2025</p>
+  </div>
+</section>
+
+<!-- BEHIND THE SCENES -->
+<section id="behind">
+  <div>
+    <div class="sec-label reveal">Process</div>
+    <h2 class="sec-h reveal reveal-d1">BEHIND<br/><span class="acc">THE SCENES.</span></h2>
+    <div class="sec-body-text reveal reveal-d2">
+      <p>The studio. The process. The chaos and the clarity.</p>
+      <p>A raw look at how the work gets made — from the first idea to the final cut. No polish, no filter. Just the real thing.</p>
+      <p><em>Diary entries + studio footage coming soon.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog">
+  <div>
+    <div class="sec-label reveal">Writing</div>
+    <h2 class="sec-h reveal reveal-d1">THE<br/><span class="acc">BLOG.</span></h2>
+    <div class="sec-body-text reveal reveal-d2">
+      <p>Thoughts on music, animation, the creative process, and everything in between.</p>
+      <p><em>Posts coming soon.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div style="width:100%;">
+    <div class="sec-label reveal">Get In Touch</div>
+    <h2 class="sec-h reveal reveal-d1">TALK<br/><span class="acc">TO ME.</span></h2>
+    <div class="contact-wrap">
+      <div class="c-aside reveal reveal-d2">
+        <p>For bookings, collabs, features, or just to say what's up.</p>
+        <p>I read everything.</p>
+        <p>Fill in the form and I'll get back to you.</p>
+        <a class="insta-icon-btn"
+           href="https://www.instagram.com/emjee.ko?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+           target="_blank" rel="noopener" title="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+      </div>
+      <div class="reveal reveal-d3">
+        <div class="c-field">
+          <label>Your Name</label>
+          <input type="text" id="cn" placeholder="enter your name..."/>
+        </div>
+        <div class="c-field">
+          <label>Your Email</label>
+          <input type="email" id="ce" placeholder="your@email.com"/>
+        </div>
+        <div class="c-field">
+          <label>Subject</label>
+          <input type="text" id="cs" placeholder="booking / collab / general..."/>
+        </div>
+        <div class="c-field">
+          <label>Message</label>
+          <textarea rows="4" id="cm" placeholder="say something real..."></textarea>
+        </div>
+        <button class="c-send" onclick="doSend()">Send Message →</button>
+        <div class="c-status" id="cst"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 EMJEE—KO. ALL RIGHTS RESERVED.</p>
+</footer>
+
+<script>
+  // ── Cursor ──
+  const cur = document.getElementById('cur');
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .track-item, .e-pill').forEach(el => {
+    el.addEventListener('mouseenter', () => cur.classList.add('xl'));
+    el.addEventListener('mouseleave', () => cur.classList.remove('xl'));
+  });
+
+  // ── Scroll reveal ──
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ── Track drawer ──
+  function toggleDraw(id) {
+    const draw = document.getElementById(id + '-draw');
+    const btn  = document.getElementById(id + '-btn');
+    const open = draw.classList.toggle('open');
+    btn.textContent = open ? '▼ Close' : '▶ Play';
+  }
+
+  // ── Embed tabs ──
+  function eTab(e, name) {
+    const parent = e.currentTarget.closest('.embed-drawer');
+    parent.querySelectorAll('.e-frame').forEach(f => f.classList.remove('on'));
+    parent.querySelectorAll('.e-tab').forEach(t => t.classList.remove('on'));
+    document.getElementById(name).classList.add('on');
+    e.currentTarget.classList.add('on');
+  }
+
+  // ── Contact ──
+  async function doSend() {
+    const name    = document.getElementById('cn').value.trim();
+    const email   = document.getElementById('ce').value.trim();
+    const subject = document.getElementById('cs').value.trim() || 'Message from EmjeeKO site';
+    const message = document.getElementById('cm').value.trim();
+    const status  = document.getElementById('cst');
+    if (!name || !email || !message) { alert('Please fill in all required fields.'); return; }
+
+    const btn = document.querySelector('.c-send');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('https://formspree.io/f/xykndwnr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message })
+      });
+      if (res.ok) {
+        status.textContent = "✓ Message sent. I'll get back to you soon.";
+        status.style.display = 'block';
+        ['cn','ce','cs','cm'].forEach(id => document.getElementById(id).value = '');
+        btn.textContent = 'Sent ✓';
+      } else { throw new Error(); }
+    } catch {
+      status.textContent = '✗ Something went wrong. Try again.';
+      status.style.color = '#ff4444';
+      status.style.display = 'block';
+      btn.textContent = 'Send Message →';
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
